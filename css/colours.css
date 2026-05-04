@@ -1,0 +1,33 @@
+:root {
+    /* alive players show in light blue */
+  --colour-alive: #88ccff;
+    /* current player shows in dark blue */
+  --colour-alive-current: #0066ff;
+    /* mayor shows in purple */
+  --colour-mayor: #a855f7;
+    /* mafia shows in red */
+  --colour-mafia: #ff4444;
+    /* current mafia player shows in dark red */
+  --colour-mafia-current: #b91c1c;
+    /* dead players show in yellow */
+  --colour-dead: #ffdd44;
+    /* current dead player shows in dark yellow */
+  --colour-dead-current: #b8860b;
+    /* inactive players show in gray */
+  --colour-inactive: #666;
+    /* unrevealed players get white grey colour */
+  --colour-neutral: #ccc;
+
+    /* ability used colour should be red */
+  --colour-ability-used: #ff4444;
+    /* hovering over ability should slightly shade the colour */
+  --colour-ability-hover: #ff6666;
+    /* ability yet to be used should be green */
+  --colour-ability-unused: #44ff44;
+    /* hovering over unused ability should slightly shade the colour */
+  --colour-ability-unused-hover: #66ff66;
+    /* set a neutral colour as a grey */
+  --colour-neutral: #666;
+    /* hovering over neutral should slightly shade the colour */
+  --colour-neutral-hover: #888;
+}

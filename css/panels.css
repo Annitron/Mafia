@@ -1,0 +1,285 @@
+/* Left Panels - Top and Bottom */
+.left-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 20vw;
+    height: 100vh;
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-right: 2px solid #444;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 100;
+}
+
+.bottom-left-panel {
+    bottom: 0;
+    top: auto;
+    height: auto;
+    overflow-y: auto;
+}
+
+.left-panel h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.player-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-item {
+    padding: 8px 12px;
+    background-color: #2a2a2a;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.player-item > span:first-child {
+    flex: 1;
+    text-align: left;
+}
+
+.player-item > span:last-child {
+    text-align: right;
+    margin-left: 10px;
+}
+
+.player-item.alive {
+    color: var(--colour-alive);
+}
+
+.player-item.mayor {
+    color: var(--colour-mayor);
+}
+
+.player-item.mafia {
+    color: var(--colour-mafia);
+}
+
+.player-item.dead {
+    color: var(--colour-dead);
+}
+
+.player-item.inactive {
+    color: var(--colour-inactive);
+}
+
+/* Right Panel - Chat Windows */
+.right-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 20vw;
+    height: 100vh;
+    background-color: #1a1a1a;
+    border-left: 2px solid #444;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+/* Right panel sections */
+.chat-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Panel buttons */
+.panel-button {
+    padding: 20px 20px;
+    background-color: #2a2a2a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    width: 100%;
+}
+
+.panel-button.rules-btn {
+    background-color: var(--colour-neutral);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.panel-button.rules-btn:hover {
+    background-color: var(--colour-neutral-hover);
+}
+
+.panel-button.ability-section-panel {
+    background-color: transparent;
+    padding: 0;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#abilityStatus {
+    padding: 20px 20px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+#abilityStatus:hover {
+    opacity: 0.9;
+}
+
+.ability-ready {
+    background-color: var(--colour-ability-unused);
+    color: #000;
+}
+
+.ability-used {
+    background-color: var(--colour-ability-used);
+    color: #fff;
+}
+
+/* Skip button */
+#skipBtn {
+    padding: 20px 20px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: var(--colour-neutral);
+    color: #fff;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+#skipBtn:hover {
+    background-color: var(--colour-neutral-hover);
+}
+
+/* Vote button */
+#voteBtn {
+    padding: 20px 20px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: var(--colour-neutral);
+    color: #fff;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+#voteBtn:hover {
+    background-color: var(--colour-inactive);
+}
+
+#voteBtn.vote-active {
+    background-color: var(--colour-ability-unused);
+    color: #000;
+}
+
+#voteBtn.vote-confirmed {
+    background-color: var(--colour-ability-used);
+    color: #fff;
+}
+
+.ability-hint {
+    font-size: 12px;
+    color: #aaa;
+    padding: 0;
+}
+
+/* Overlay Panels */
+.overlay-panel {
+    position: fixed;
+    background-color: #1a1a1a;
+    border: 2px solid #444;
+    padding: 15px 20px;
+    z-index: 20;
+}
+
+/* Top Overlay Panel - Full width */
+.top-overlay-panel {
+    position: fixed;
+    top: 0px;
+    left: 10vw;
+    right: 10vw;
+    width: calc(100% - 10vw - 10vw);
+    height: calc(100% - 10vh - 10vh);
+    text-align: center;
+}
+
+.phase-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.phase-stats {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 5px;
+}
+
+/* Bottom Overlay Panel - Full width */
+.bottom-overlay-panel {
+    position: fixed;
+    bottom: 0px;
+    left: 10vw;
+    right: 10vw;
+    width: calc(100% - 10vw - 10vw);
+    height: calc(100% - 10vh - 10vh);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-height: 120px;
+    text-align: center;
+}
+
+.role-text {
+    font-size: 16px;
+    color: #fff;
+    text-align: center;
+}
+
+#timer {
+    margin-bottom: 10px !important;
+}
+
+.role-colour {
+    color: var(--colour-alive-current);
+    font-weight: bold;
+}
+
+/* Bottom Middle - Role Display */
+.role-section {
+    margin-bottom: 20px;
+}
