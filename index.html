@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafia Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Lobby UI (hidden once game starts) -->
+    <div id="lobby-container" class="lobby-container">
+        <div class="container">
+            <h1 class="title">Mafia Game</h1>
+            
+            <!-- Initial Menu -->
+            <div id="menu-section" class="section">
+                <h2>Welcome to Mafia</h2>
+                <div class="button-group">
+                    <button id="hostBtn" class="btn">Host Server</button>
+                    <button id="joinBtn" class="btn">Join Server</button>
+                </div>
+            </div>
+            
+            <!-- Host Game Section -->
+            <div id="host-section" class="section" style="display: none;">
+                <h2>Host Game</h2>
+                <button id="backFromHostBtn" class="back-btn">← Back</button>
+                <div class="form-group">
+                    <label for="hostName">Your Name:</label>
+                    <input type="text" id="hostName" placeholder="Enter your name" maxlength="10">
+                    <button id="hostGameBtn" class="btn">Host Game</button>
+                </div>
+            </div>
+            
+            <!-- Join Game Section -->
+            <div id="join-section" class="section" style="display: none;">
+                <h2>Join Game</h2>
+                <button id="backFromJoinBtn" class="back-btn">← Back</button>
+                <div class="form-group">
+                    <label for="joinName">Your Name:</label>
+                    <input type="text" id="joinName" placeholder="Enter your name" maxlength="10">
+                    <label for="joinCode">Game Code:</label>
+                    <input type="text" id="joinCode" placeholder="Enter 4-digit game code" maxlength="4">
+                    <button id="joinGameBtn" class="btn">Join Game</button>
+                </div>
+            </div>
+            
+            <!-- Players Section -->
+            <div id="players-section" class="section" style="display: none;">
+                <h2>Players in Server</h2>
+                <button id="backFromPlayersBtn" class="back-btn">← Back</button>
+                <div id="playersList"></div>
+                <div class="start-game-container">
+                    <button id="startGameBtn" class="btn" style="display: none;">Start Game</button>
+                </div>
+            </div>
+            
+            <!-- Status Section -->
+            <div id="status" class="section">
+                <h2>Status</h2>
+                <div id="statusMessage">Welcome to Mafia Game!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game UI (shown once game starts) -->
+    <div id="game-container" class="game-container" style="display: none;">
+        <!-- Left panel: Top left - Rules and Ability -->
+        <div class="left-panel top-left-panel">
+            <!-- Rules button -->
+            <div class="panel-button ability-section-panel">
+                <button id="rulesBtn" class="panel-button rules-btn">Rules</button>
+                <div class="ability-hint">Press R or click here to read rules</div>
+            </div>
+            
+            <!-- Skip phase button -->
+            <div class="panel-button ability-section-panel">
+                <button id="skipBtn" class="panel-button skip-btn">Skip Phase</button>
+                <div class="ability-hint">Press Q or click here to skip phase</div>
+            </div>
+
+            <!-- Ability status -->
+            <div class="panel-button ability-section-panel">
+                <div id="abilityStatus" class="ability-ready">Use ability today</div>
+                <div class="ability-hint">Press E or click here to use ability</div>
+            </div>
+
+            <!-- Vote button -->
+            <div class="panel-button ability-section-panel">
+                <button id="voteBtn" class="panel-button vote-btn">Vote</button>
+                <div id="voteBtnHint" class="ability-hint">Press F or click here to vote</div>
+            </div>
+        </div>
+
+        <!-- Center: Main game area -->
+        <div class="main-container">
+            <!-- Top panel: Phase display -->
+            <div class="overlay-panel top-overlay-panel">
+                <div class="phase-title" id="phaseTitle">Day 1: Morning Phase</div>
+                <div class="phase-stats">Players skipped: <span id="skipped">0/1</span></div>
+            </div>
+
+            <!-- Bottom panel: Role display -->
+            <div class="overlay-panel bottom-overlay-panel">
+                <div id="timer" class="phase-title">4:00</div>
+                <div class="role-text">Your Role: <span id="roleSpan" class="role-colour">WAITING</span></div>
+            </div>
+
+            <!-- Image wrapper with houses -->
+            <div class="image-container">
+                <div class="image-wrapper">
+                    <img id="townImage" src="images/town_morning_crop.png" alt="Town Morning">
+                    
+                    <!-- Houses 1-12 with player names -->
+                    <img class="house" id="house1" style="left: 60px; top: 690px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 1">
+                    <div class="player-name" id="name1" style="left: 125px; top: 765px;"></div>
+                    
+                    <img class="house" id="house2" style="left: 60px; top: 480px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 2">
+                    <div class="player-name" id="name2" style="left: 125px; top: 555px;"></div>
+                    
+                    <img class="house" id="house3" style="left: 60px; top: 270px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 3">
+                    <div class="player-name" id="name3" style="left: 125px; top: 345px;"></div>
+                    
+                    <img class="house" id="house4" style="left: 60px; top: 60px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 4">
+                    <div class="player-name" id="name4" style="left: 125px; top: 135px;"></div>
+                    
+                    <img class="house" id="house5" style="left: 250px; top: 60px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 5">
+                    <div class="player-name" id="name5" style="left: 315px; top: 135px;"></div>
+                    
+                    <img class="house" id="house6" style="left: 440px; top: 60px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 6">
+                    <div class="player-name" id="name6" style="left: 505px; top: 135px;"></div>
+                    
+                    <img class="house" id="house7" style="left: 630px; top: 60px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 7">
+                    <div class="player-name" id="name7" style="left: 695px; top: 135px;"></div>
+                    
+                    <img class="house" id="house8" style="left: 820px; top: 60px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 8">
+                    <div class="player-name" id="name8" style="left: 885px; top: 135px;"></div>
+                    
+                    <img class="house" id="house9" style="left: 1010px; top: 60px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 9">
+                    <div class="player-name" id="name9" style="left: 1075px; top: 135px;"></div>
+                    
+                    <img class="house" id="house10" style="left: 1010px; top: 270px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 10">
+                    <div class="player-name" id="name10" style="left: 1075px; top: 345px;"></div>
+                    
+                    <img class="house" id="house11" style="left: 1010px; top: 480px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 11">
+                    <div class="player-name" id="name11" style="left: 1075px; top: 555px;"></div>
+
+                    <img class="house" id="house12" style="left: 1010px; top: 690px; width: 130px; height: 150px;" src="images/active_house.png" alt="House 12">
+                    <div class="player-name" id="name12" style="left: 1075px; top: 765px;"></div>
+
+                    <!-- Player's own dot -->
+                    <div id="dot" class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom left panel: Player list -->
+        <div class="left-panel bottom-left-panel">
+            <h3>Players</h3>
+            <div id="playerList" class="player-list"></div>
+        </div>
+
+        <!-- Right panel: Chat windows -->
+        <div class="right-panel">
+            <!-- Chat windows section -->
+            <div class="chat-section" id="chatSection">
+                <!-- Main chat window (always visible) -->
+                <div class="chat-window chat-blue">
+                    <div class="chat-header">Main Chat</div>
+                    <div id="chat-main-messages" class="chat-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-main-input" class="chat-input" placeholder="Type message...">
+                        <button onclick="sendChatMessage('main')" class="chat-send">Send</button>
+                    </div>
+                </div>
+
+                <!-- Dead or Mafia chat window (conditional) -->
+                <div class="chat-window" id="secondChatWindow" style="display: none;">
+                    <div class="chat-header" id="secondChatHeader">Dead Chat</div>
+                    <div id="chat-second-messages" class="chat-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-second-input" class="chat-input" placeholder="Type message...">
+                        <button onclick="sendChatMessage('second')" class="chat-send">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rulesModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Mafia Game - Rules & Roles</h2>
+            <div class="modal-body">
+                <h3>Objective</h3>
+                <p><strong>Town wins:</strong> All Mafia members are eliminated.</p>
+                <p><strong>Mafia wins:</strong> Mafia equals or outnumbers town members.</p>
+
+                <h3>Game Flow</h3>
+                <p><strong>Day Phase:</strong> All players discuss and vote to eliminate someone. The player with the most votes is eliminated.</p>
+                <p><strong>Night Phase:</strong> Mafia members choose their target. Special roles perform their night abilities.</p>
+
+                <h3>Town Roles (Villager Faction)</h3>
+                <ul>
+                    <li><strong>Sheriff:</strong> Investigates players each night to learn their faction.</li>
+                    <li><strong>Doctor:</strong> Protects one player each night from Mafia elimination.</li>
+                    <li><strong>Deputy:</strong> Investigates players at night (only if Sheriff dies).</li>
+                    <li><strong>Bodyguard:</strong> Guards a player to protect them from attacks.</li>
+                    <li><strong>Mayor:</strong> Can reveal their identity and gain an extra vote during day phases.</li>
+                    <li><strong>Medium:</strong> Can speak with dead players during day phase.</li>
+                    <li><strong>Veteran:</strong> Can activate an alert during the day; anyone visiting them at night dies.</li>
+                    <li><strong>Gaoler:</strong> Can jail a player during the day to prevent their day abilities.</li>
+                    <li><strong>Undertaker:</strong> Learns the role of the player who was eliminated during the day.</li>
+                </ul>
+
+                <h3>Mafia Roles (Mafia Faction)</h3>
+                <ul>
+                    <li><strong>Framer:</strong> Can frame a player during the day, making them appear as Mafia to investigators.</li>
+                    <li><strong>Godfather:</strong> Can get double the votes during a round, but multiple uses may reveal their identity.</li>
+                    <li><strong>Imposter:</strong> Can disguise as a Villager during the day.</li>
+                    <li><strong>Kidnapper:</strong> Can kidnap a player during the day.</li>
+                </ul>
+
+                <h3>Controls</h3>
+                <p><strong>Movement:</strong> WASD keys to move your circle around the town.</p>
+                <p><strong>Voting:</strong> Hover over a house to highlight it. Press F or click Vote to vote for that player.</p>
+                <p><strong>Abilities:</strong> Press E or click Ability to use your role's special power (if available).</p>
+                <p><strong>Skip Phase:</strong> Press Q or click Skip to vote to end the phase early.</p>
+                <p><strong>Chat:</strong> Main chat visible to all. Dead/Mafia chat available based on your status.</p>
+                <p><strong>Rules:</strong> Press R to toggle this rules panel.</p>
+
+                <h3>Tips</h3>
+                <p>- Pay attention to voting patterns and player behavior.</p>
+                <p>- Mafia may try to blend in; use investigations wisely.</p>
+                <p>- Dead players can only chat with each other and the Medium.</p>
+            </div>
+            <button onclick="closeRules()" class="close-btn">Close</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

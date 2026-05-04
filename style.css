@@ -1,0 +1,23 @@
+@import url('./css/panels.css');
+@import url('./css/chat.css');
+@import url('./css/popup.css');
+@import url('./css/movement.css');
+@import url('./css/colours.css');
+@import url('./css/scrollbar.css');
+@import url('./css/images.css');
+@import url('./css/lobby.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
