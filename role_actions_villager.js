@@ -307,6 +307,7 @@ function day_mayor(socketId) {
             console.log(`[MAYOR] The Mayor (${mayorData.player}) reveals themselves to the town!`);
             role_dynamic_data.day_data.mayor_reveal = true;
             role_dynamic_data.setGameAbilityUsed('mayor', true);
+            role_dynamic_data.setRoleRevealed('mayor', true);
             
             resolve();
         } catch (err) {

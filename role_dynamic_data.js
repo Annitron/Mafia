@@ -599,6 +599,7 @@ module.exports = {
     getRolesByPlayer,
     setVisibleFaction,
     setGameAbilityUsed,
+    setRoleRevealed,
     setRoom,
     setConnectedPlayersData,
     updatePlayerToEliminated,

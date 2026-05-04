@@ -65,9 +65,10 @@ function day_godfather(socketId) {
     
     const godfatherData = role_dynamic_data.getRole('godfather');
     
-    // if godfather has already revealed, return early
+    // if godfather has already used ability once, then reveal themselves to the town
     if (godfatherData && godfatherData.game_ability_used) {
-        console.log('[GODFATHER] Godfather has already revealed themselves.');
+        console.log('[GODFATHER] Godfather revealed themselves.');
+        role_dynamic_data.setRoleRevealed('godfather', true);
         return Promise.resolve();
     }
     
