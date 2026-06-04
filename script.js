@@ -411,6 +411,8 @@ function renderHouses() {
     // Hide houses if player is in certain rooms (bedroom, office, prison, eliminated)
     const restrictedRooms = ['bedroom', 'office', 'prison', 'eliminated'];
     const shouldHideHouses = myRoleData && restrictedRooms.includes(myRoleData.room);
+        console.log("ShouldHideHouses" + shouldHideHouses);
+    console.log("myRoleData: " + myRoleData);
     
     for (let i = 1; i <= 12; i++) {
         const houseImg = document.getElementById(`house${i}`);
