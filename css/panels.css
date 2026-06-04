@@ -230,7 +230,6 @@
     left: 10vw;
     right: 10vw;
     width: calc(100% - 10vw - 10vw);
-    height: calc(100% - 10vh - 10vh);
     text-align: center;
 }
 
@@ -254,7 +253,6 @@
     left: 10vw;
     right: 10vw;
     width: calc(100% - 10vw - 10vw);
-    height: calc(100% - 10vh - 10vh);
     display: flex;
     flex-direction: column;
     justify-content: center;
