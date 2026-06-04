@@ -6,7 +6,7 @@ const role_dynamic_data = require('./role_dynamic_data');
 const phases = require('./phases');
 const ability_handler = require('./ability_handler');
 
-let connectedPlayers = [];
+let connectedPlayers = {}; // Dictionary with game codes as keys, player arrays as values
 let gameCode = '';
 let hostSocket = null;
 let gameState = 'waiting'; // waiting, setup, playing
@@ -90,8 +90,10 @@ function createServer() {
         
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
-            // Remove player from connected players
-            connectedPlayers = connectedPlayers.filter(p => p.socketId !== socket.id);
+            // Remove player from their game code
+            for (const code in connectedPlayers) {
+                connectedPlayers[code] = connectedPlayers[code].filter(p => p.socketId !== socket.id);
+            }
             // If host disconnects, reset game
             if (hostSocket === socket) {
                 hostSocket = null;
@@ -99,14 +101,15 @@ function createServer() {
                 gameState = 'waiting';
             }
             // Broadcast updated player list
-            io.emit('players-updated', connectedPlayers);
+            io.emit('players-updated', connectedPlayers[gameCode] || []);
         });
         
         socket.on('host-game', (data) => {
             const { playerName } = data;
             
-            // Validate player name
-            const nameValidation = validatePlayerName(playerName, connectedPlayers);
+            // Validate player name against current game's players
+            const currentGamePlayers = connectedPlayers[gameCode] || [];
+            const nameValidation = validatePlayerName(playerName, currentGamePlayers);
             if (!nameValidation.valid) {
                 socket.emit('host-error', { message: nameValidation.error });
                 return;
@@ -117,6 +120,11 @@ function createServer() {
             hostSocket = socket;
             gameState = 'setup';
             
+            // Initialize players array for this game code
+            if (!connectedPlayers[gameCode]) {
+                connectedPlayers[gameCode] = [];
+            }
+            
             // Add host as first player
             const hostPlayer = {
                 name: nameValidation.sanitizedName,
@@ -124,13 +132,13 @@ function createServer() {
                 isHost: true,
                 ready: false
             };
-            connectedPlayers = [hostPlayer];
+            connectedPlayers[gameCode] = [hostPlayer];
             
             // Send game code to host
-            socket.emit('game-hosted', { gameCode, players: connectedPlayers });
+            socket.emit('game-hosted', { gameCode, players: connectedPlayers[gameCode] });
             
             // Broadcast to all players
-            io.emit('players-updated', connectedPlayers);
+            io.emit('players-updated', connectedPlayers[gameCode]);
             
             console.log(`Game hosted with code: ${gameCode} by ${nameValidation.sanitizedName}`);
         });
@@ -144,14 +152,17 @@ function createServer() {
                 return;
             }
             
+            // Get current game's players
+            const currentGamePlayers = connectedPlayers[gameCode] || [];
+            
             // Check if game is full (max 12 players)
-            if (connectedPlayers.length >= 12) {
+            if (currentGamePlayers.length >= 12) {
                 socket.emit('join-error', { message: 'Game is full (maximum 12 players)' });
                 return;
             }
             
             // Validate player name
-            const nameValidation = validatePlayerName(playerName, connectedPlayers);
+            const nameValidation = validatePlayerName(playerName, currentGamePlayers);
             if (!nameValidation.valid) {
                 socket.emit('join-error', { message: nameValidation.error });
                 return;
@@ -164,16 +175,16 @@ function createServer() {
                 isHost: false,
                 ready: false
             };
-            connectedPlayers.push(newPlayer);
+            connectedPlayers[gameCode].push(newPlayer);
             
             // Send success to joining player
-            socket.emit('join-success', { players: connectedPlayers });
+            socket.emit('join-success', { players: connectedPlayers[gameCode] });
             
             // Broadcast updated player list to everyone
-            io.emit('players-updated', connectedPlayers);
+            io.emit('players-updated', connectedPlayers[gameCode]);
             
             // Check if host can start game (4+ players)
-            if (connectedPlayers.length >= 4) {
+            if (connectedPlayers[gameCode].length >= 4) {
                 hostSocket?.emit('can-start-game', { canStart: true });
             }
             
@@ -189,8 +200,8 @@ function createServer() {
                 return;
             }
             
-            // Get ready players
-            const readyPlayers = connectedPlayers
+            // Get ready players from current game code
+            const readyPlayers = connectedPlayers[gameCode]
                 .filter(p => playerNames.includes(p.name))
                 .map(p => p.name);
             
@@ -205,7 +216,7 @@ function createServer() {
             console.log('Starting game with players:', readyPlayers);
             
             // Get role assignments
-            const assigned_roles = player_files.continue_game_setup(readyPlayers, io, connectedPlayers);
+            const assigned_roles = player_files.continue_game_setup(readyPlayers, io, connectedPlayers[gameCode]);
             
             // Send role assignments to all players
             for (const [playerName, roleName] of Object.entries(assigned_roles)) {
@@ -215,7 +226,7 @@ function createServer() {
                     `<span style="color: darkblue;">Your role is ${roleName}</span>`;
                 
                 // Find player's socket and send role
-                const playerSocket = connectedPlayers.find(p => p.name === playerName)?.socketId;
+                const playerSocket = connectedPlayers[gameCode].find(p => p.name === playerName)?.socketId;
                 if (playerSocket) {
                     io.to(playerSocket).emit('role-assignment', { 
                         message: roleMessage,
@@ -229,7 +240,7 @@ function createServer() {
             io.emit('game-starting', { message: 'Game is starting!' });
 
             // Initialize phases module and start progression asynchronously
-            phases.initialiseSocketIO(io, () => connectedPlayers);
+            phases.initialiseSocketIO(io, () => connectedPlayers[gameCode]);
             (async () => {
                 try {
                     const winner = await phases.phase_progresser();
